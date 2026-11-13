@@ -2,6 +2,11 @@ spring:
   application:
     name: patient-service
 
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+
 # UNCOMMENT TO USE IN MEMORY DB OUTSIDE OF DOCKER
 #  h2:
 #    console:

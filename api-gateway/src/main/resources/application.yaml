@@ -1,0 +1,23 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            # patient service CRUD endpoints
+            - id: patient-service-route
+              uri: http://patient-service:4000
+              predicates:
+                - Path=/api/patients/**
+              filters:
+                - StripPrefix=1
+            # patient service swagger endpoint
+            - id: api-docs-patient-route
+              uri: http://patient-service:4000
+              predicates:
+                - Path=/api-docs/patients
+              filters:
+                - RewritePath=/api-docs/patients,/v3/api-docs
+
+server:
+  port: 4004

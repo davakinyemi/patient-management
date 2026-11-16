@@ -2,6 +2,7 @@ package com.davak.authservice.service;
 
 import com.davak.authservice.dto.LoginRequestDTO;
 import com.davak.authservice.util.JwtUtil;
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +32,14 @@ public class AuthService {
                 .map(u -> jwtUtil.generateToken(u.getEmail(), u.getRole()));
 
         return token;
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            jwtUtil.validateToken(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 }

@@ -1,14 +1,52 @@
 package com.pm.stack;
 
 import software.amazon.awscdk.*;
+import software.amazon.awscdk.services.ec2.InstanceClass;
+import software.amazon.awscdk.services.ec2.InstanceSize;
+import software.amazon.awscdk.services.ec2.InstanceType;
+import software.amazon.awscdk.services.ec2.Vpc;
+import software.amazon.awscdk.services.rds.*;
+import software.constructs.Construct;
 
 /**
  * @author Dave AKN
  * @version 1.0
  */
 public class LocalStack extends Stack {
+    private final Vpc vpc;
+
     public LocalStack(final App scope, final String id, final StackProps props) {
         super(scope, id, props);
+
+        this.vpc = createVpc();
+
+        DatabaseInstance authServiceDB = createDatabase("AuthServiceDB", "auth_service_db");
+
+        DatabaseInstance patientServiceDB = createDatabase("PatientServiceDB", "patient_service_db");
+    }
+
+    private Vpc createVpc() {
+        return Vpc.Builder.create(this, "PatientManagementVPC")
+                .vpcName("PatientManagementVPC")
+                .maxAzs(2)
+                .build();
+    }
+
+    private DatabaseInstance createDatabase(String id, String dbName) {
+        return DatabaseInstance.Builder
+                .create(this, id)
+                .engine(DatabaseInstanceEngine.postgres(
+                        PostgresInstanceEngineProps.builder()
+                                .version(PostgresEngineVersion.VER_18)
+                                .build()))
+                .vpc(vpc)
+                .instanceType(InstanceType.of(InstanceClass.BURSTABLE3, InstanceSize.MICRO))
+                .allocatedStorage(20)
+                .storageEncrypted(true)
+                .credentials(Credentials.fromGeneratedSecret("admin_user"))
+                .databaseName(dbName)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .build();
     }
 
     public static void main(final String[] args) {
